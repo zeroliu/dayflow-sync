@@ -1,0 +1,57 @@
+{
+  "name": "dayflow-sync",
+  "version": "1.0.0",
+  "description": "Export your Dayflow timeline to beautiful markdown notes. 100% local, zero network calls, fully transparent.",
+  "author": "dayflow-sync contributors",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/dayflow-sync.js",
+  "bin": {
+    "dayflow-sync": "./dist/dayflow-sync.js"
+  },
+  "scripts": {
+    "build": "npm run build:standalone && npm run build:skill",
+    "build:standalone": "ncc build src/dayflow-sync.js -o dist --minify --source-map && mv dist/index.js dist/dayflow-sync.js",
+    "build:skill": "node scripts/build-skill.js",
+    "dev": "node src/dayflow-sync.js",
+    "test": "node src/dayflow-sync.js --days 1",
+    "sync": "node src/dayflow-sync.js",
+    "sync:week": "node src/dayflow-sync.js --days 7",
+    "sync:month": "node src/dayflow-sync.js --days 30",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "dayflow",
+    "markdown",
+    "timeline",
+    "productivity",
+    "obsidian",
+    "notion",
+    "export",
+    "automation",
+    "macos",
+    "local",
+    "privacy",
+    "no-tracking"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "commander": "^11.1.0",
+    "date-fns": "^3.0.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.38.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zeroliu/dayflow-sync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zeroliu/dayflow-sync/issues"
+  },
+  "homepage": "https://github.com/zeroliu/dayflow-sync#readme"
+}

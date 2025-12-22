@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.dayflow.sync</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <!--
+        PATH TO NODE.JS
+        Find with: which node
+        Common paths:
+          - /usr/local/bin/node (Homebrew Intel)
+          - /opt/homebrew/bin/node (Homebrew Apple Silicon)
+          - ~/.nvm/versions/node/vX.X.X/bin/node (nvm)
+        -->
+        <string>/usr/local/bin/node</string>
+
+        <!--
+        PATH TO DAYFLOW-SYNC SCRIPT
+        Replace with your actual path
+        Example: /Users/yourname/Developer/dayflow-sync/src/dayflow-sync.js
+        -->
+        <string>/Users/YOUR_USERNAME/Developer/dayflow-sync/src/dayflow-sync.js</string>
+
+        <!--
+        OUTPUT DIRECTORY
+        Where to save markdown notes
+        Examples:
+          - Obsidian: /Users/yourname/Documents/MyVault/dayflow
+          - Notion: /Users/yourname/Notion-Import/dayflow
+          - Any folder: /Users/yourname/Documents/notes/dayflow
+        -->
+        <string>--output</string>
+        <string>/Users/YOUR_USERNAME/Documents/MyVault/dayflow</string>
+
+        <!--
+        NUMBER OF DAYS TO SYNC
+        Recommended: 7 (last week)
+        Options: 1, 7, 30, 90
+        -->
+        <string>--days</string>
+        <string>7</string>
+
+        <!--
+        OPTIONAL: Force regeneration
+        Uncomment to always overwrite existing notes
+        WARNING: This will overwrite any manual edits
+        -->
+        <!-- <string>--force</string> -->
+    </array>
+
+    <!--
+    SCHEDULE
+    When to run the sync
+    Examples:
+      - 6 AM: Hour = 6
+      - 12 PM: Hour = 12
+      - 7 PM: Hour = 19
+      - 11 PM: Hour = 23
+    -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>19</integer>  <!-- 7:00 PM -->
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <!--
+    OPTIONAL: Multiple sync times per day
+    Uncomment and modify to sync at multiple times
+    -->
+    <!--
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Hour</key>
+            <integer>12</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+        <dict>
+            <key>Hour</key>
+            <integer>19</integer>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
+    </array>
+    -->
+
+    <!-- Log files -->
+    <key>StandardOutPath</key>
+    <string>/tmp/dayflow-sync.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/dayflow-sync.error.log</string>
+</dict>
+</plist>
+
+<!--
+INSTALLATION:
+1. Replace all YOUR_USERNAME placeholders with your actual username
+2. Update paths to match your system
+3. Copy to: ~/Library/LaunchAgents/com.dayflow.sync.plist
+4. Load: launchctl load ~/Library/LaunchAgents/com.dayflow.sync.plist
+5. Verify: launchctl list | grep dayflow
+
+TESTING:
+- Trigger manually: launchctl start com.dayflow.sync
+- View logs: tail -f /tmp/dayflow-sync.log
+- Check errors: tail -f /tmp/dayflow-sync.error.log
+
+MANAGEMENT:
+- Unload: launchctl unload ~/Library/LaunchAgents/com.dayflow.sync.plist
+- Reload: launchctl unload ~/Library/LaunchAgents/com.dayflow.sync.plist && launchctl load ~/Library/LaunchAgents/com.dayflow.sync.plist
+
+MORE INFO:
+See docs/AUTOMATION.md for complete guide
+-->
