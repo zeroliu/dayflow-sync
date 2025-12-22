@@ -27,9 +27,9 @@ This tool bridges Dayflow with your note-taking workflow, giving you full owners
 ### Pre-built Binary
 
 ```bash
-curl -L https://github.com/zeroliu/dayflow-sync/releases/latest/download/dayflow-sync.js -o dayflow-sync
-chmod +x dayflow-sync
-./dayflow-sync --days 7
+mkdir -p ~/dayflow-sync
+curl -L https://github.com/zeroliu/dayflow-sync/releases/latest/download/dayflow-sync-macos.tar.gz | tar -xz -C ~/dayflow-sync
+node ~/dayflow-sync/dayflow-sync.js --days 7
 ```
 
 ### From Source

@@ -10,9 +10,7 @@
     "dayflow-sync": "./dist/dayflow-sync.js"
   },
   "scripts": {
-    "build": "npm run build:standalone && npm run build:skill",
-    "build:standalone": "ncc build src/dayflow-sync.js -o dist --minify --source-map && mv dist/index.js dist/dayflow-sync.js",
-    "build:skill": "node scripts/build-skill.js",
+    "build": "ncc build src/dayflow-sync.js -o dist --minify && mv dist/index.js dist/dayflow-sync.js",
     "dev": "node src/dayflow-sync.js",
     "test": "node src/dayflow-sync.js --days 1",
     "sync": "node src/dayflow-sync.js",
