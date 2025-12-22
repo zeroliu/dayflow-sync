@@ -2,7 +2,25 @@
 
 Export your [Dayflow](https://github.com/JerryZLiu/Dayflow) timeline to markdown notes. Perfect for Obsidian, Logseq, or any markdown-based workflow.
 
-**100% local** — zero network calls, read-only database access, no tracking.
+## Why Dayflow Sync?
+
+[Dayflow](https://github.com/JerryZLiu/Dayflow) is a macOS app that automatically records your screen activity and generates AI-powered timeline summaries. While Dayflow excels at capturing your day, **your data deserves to live in your notes** where you can:
+
+- Review and reflect on your daily activities
+- Build a searchable archive of your work patterns
+- Link activities to projects and tasks
+- Track productivity trends over time
+
+This tool bridges Dayflow with your note-taking workflow, giving you full ownership of your timeline data in plain text format.
+
+## Privacy
+
+**Your data stays on your machine.**
+
+- **100% local processing** — zero network calls, no data uploads
+- **Read-only database access** — cannot modify your Dayflow data
+- **No tracking** — no analytics, telemetry, or phone-home features
+- **Safe to run** while Dayflow is active
 
 ## Installation
 
@@ -48,13 +66,13 @@ export DAYFLOW_OUTPUT_DIR="$HOME/Documents/MyVault/dayflow"
 
 ## CLI Reference
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `-d, --days <n>` | 7 | Days to sync (1-365) |
-| `-o, --output <path>` | ./dayflow-notes | Output directory |
-| `--db <path>` | ~/Library/.../chunks.sqlite | Custom database path |
-| `--includeDeleted <0\|1>` | 0 | Include deleted cards |
-| `-f, --force` | false | Overwrite existing notes |
+| Option                    | Default                     | Description              |
+| ------------------------- | --------------------------- | ------------------------ |
+| `-d, --days <n>`          | 7                           | Days to sync (1-365)     |
+| `-o, --output <path>`     | ./dayflow-notes             | Output directory         |
+| `--db <path>`             | ~/Library/.../chunks.sqlite | Custom database path     |
+| `--includeDeleted <0\|1>` | 0                           | Include deleted cards    |
+| `-f, --force`             | false                       | Overwrite existing notes |
 
 ## Output Format
 
@@ -75,41 +93,11 @@ Dayflow uses a **4 AM boundary** — activities between midnight and 4 AM belong
 
 ## Automation
 
-Sync daily with launchd. Create `~/Library/LaunchAgents/com.dayflow.sync.plist`:
+Sync daily with launchd:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.dayflow.sync</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/local/bin/node</string>
-        <string>/path/to/dayflow-sync/src/dayflow-sync.js</string>
-        <string>--output</string>
-        <string>/path/to/vault/dayflow</string>
-        <string>--days</string>
-        <string>7</string>
-    </array>
-    <key>StartCalendarInterval</key>
-    <dict>
-        <key>Hour</key>
-        <integer>19</integer>
-        <key>Minute</key>
-        <integer>0</integer>
-    </dict>
-    <key>StandardOutPath</key>
-    <string>/tmp/dayflow-sync.log</string>
-    <key>StandardErrorPath</key>
-    <string>/tmp/dayflow-sync.error.log</string>
-</dict>
-</plist>
-```
-
-Then load it:
+1. Copy [examples/launchd.plist.template](examples/launchd.plist.template) to `~/Library/LaunchAgents/com.dayflow.sync.plist`
+2. Edit the paths in the file (node path, script path, output directory)
+3. Load it:
 
 ```bash
 launchctl load ~/Library/LaunchAgents/com.dayflow.sync.plist

@@ -17,14 +17,8 @@ npm install
 # Run sync directly (development)
 npm run dev              # or: node src/dayflow-sync.js
 
-# Build standalone bundle + Claude Code skill
+# Build standalone bundle
 npm run build
-
-# Build only standalone bundle
-npm run build:standalone
-
-# Build only Claude Code skill package
-npm run build:skill
 
 # Quick test (sync 1 day)
 npm run test
@@ -45,10 +39,9 @@ Single-file application (`src/dayflow-sync.js`) with clear sections:
 
 Dayflow considers a "day" to run from 4:00 AM to 3:59 AM the next day. The `getDayInfoFor4AMBoundary()` function replicates this logic. Activities at 2:00 AM on Dec 20 belong to Dec 19's note.
 
-### Build Outputs
+### Build Output
 
 - `dist/dayflow-sync.js` - Bundled standalone script (ncc with better-sqlite3 native bindings)
-- `dist/skill/` - Claude Code skill package (SKILL.md manifest + bundled script)
 
 ## Database Schema (Dayflow)
 
