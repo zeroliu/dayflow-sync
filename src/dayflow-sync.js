@@ -53,7 +53,7 @@ program
   .option('-o, --output <path>', 'Output directory path (default: ./dayflow-notes)')
   .option('--db <path>', 'Custom Dayflow database path (overrides default location)')
   .option('--includeDeleted <0|1>', 'Include deleted timeline cards', '0')
-  .option('-f, --force', 'Force regenerate existing notes', false)
+  .option('-f, --force', 'Force regenerate all notes, including complete days', false)
   .parse(process.argv);
 
 const options = program.opts();
@@ -154,6 +154,16 @@ function parseMetadata(metadataJson) {
 }
 
 // ==================== Date Functions ====================
+/**
+ * Check if a day is complete (current time is past 4 AM of the NEXT day)
+ * Used to determine if a day's note should be updated or skipped
+ */
+function isDayComplete(dayString) {
+  const dayDate = new Date(dayString + 'T04:00:00');
+  const nextDay4AM = addDays(dayDate, 1);
+  return new Date() >= nextDay4AM;
+}
+
 /**
  * Replicates Dayflow's 4 AM day boundary logic.
  *
@@ -276,7 +286,7 @@ function extractAllDistractions(cards) {
 }
 
 // ==================== Markdown Generation Functions ====================
-function generateFrontmatter(dayString, cards, journal) {
+function generateFrontmatter(dayString, cards, journal, existingCreatedAt = null) {
   const totalMinutes = calculateTotalMinutes(cards);
   const categories = extractCategories(cards);
 
@@ -288,7 +298,7 @@ function generateFrontmatter(dayString, cards, journal) {
     categories: categories,
     has_journal: !!journal,
     journal_status: journal?.status || null,
-    created_at: new Date().toISOString(),
+    created_at: existingCreatedAt || new Date().toISOString(),
     updated_at: new Date().toISOString(),
     tags: ['dayflow', 'timeline', ...categories.map(c => c.toLowerCase())]
   };
@@ -444,8 +454,8 @@ function generateAppUsageSection(cards) {
   return `## App Usage Summary\n${items.join('\n')}\n`;
 }
 
-function generateMarkdownNote(dayString, cards, journal) {
-  const frontmatter = generateFrontmatter(dayString, cards, journal);
+function generateMarkdownNote(dayString, cards, journal, existingCreatedAt = null) {
+  const frontmatter = generateFrontmatter(dayString, cards, journal, existingCreatedAt);
   const summary = generateDailySummary(cards, dayString);
   const journalSection = generateJournalSection(journal);
   const timeline = generateTimelineSection(cards);
@@ -473,11 +483,17 @@ async function findExistingNoteByDay(dayString, directory) {
   }
 }
 
-async function shouldSkipNote(dayString, directory, force) {
-  if (force) return false;
-
-  const existingPath = await findExistingNoteByDay(dayString, directory);
-  return existingPath !== null; // Skip if exists and not forced
+// Read existing note's created_at from frontmatter (for preserving timestamps on updates)
+async function getExistingCreatedAt(dayString, directory) {
+  const filePath = path.join(directory, generateFilename(dayString));
+  try {
+    const content = await fs.readFile(filePath, 'utf8');
+    const match = content.match(/created_at:\s*['"]?([^'"\n]+)['"]?/);
+    if (match) return match[1].trim();
+  } catch {
+    // File doesn't exist or can't be read
+  }
+  return null;
 }
 
 async function saveNote(filename, content, directory) {
@@ -536,9 +552,13 @@ async function syncDayflowData() {
     try {
       console.log(`Processing ${dayString}...`);
 
-      // Skip if note exists and not forced
-      if (await shouldSkipNote(dayString, OUTPUT_DIR, FORCE)) {
-        console.log(`  ⊘ Skipped (note exists, use --force to regenerate)`);
+      const existingPath = await findExistingNoteByDay(dayString, OUTPUT_DIR);
+      const dayComplete = isDayComplete(dayString);
+
+      // Smart sync (default): skip complete days with existing notes
+      // Force mode: regenerate everything
+      if (!FORCE && existingPath && dayComplete) {
+        console.log(`  ⊘ Skipped (day complete, note exists)`);
         skippedCount++;
         continue;
       }
@@ -568,12 +588,16 @@ async function syncDayflowData() {
         continue;
       }
 
+      // Preserve created_at when updating existing notes (unless forcing)
+      const existingCreatedAt = (!FORCE && existingPath)
+        ? await getExistingCreatedAt(dayString, OUTPUT_DIR)
+        : null;
+
       // Generate markdown
-      const markdown = generateMarkdownNote(dayString, timelineCards, journalEntry);
+      const markdown = generateMarkdownNote(dayString, timelineCards, journalEntry, existingCreatedAt);
       const filename = generateFilename(dayString);
 
       // Save note
-      const existingPath = await findExistingNoteByDay(dayString, OUTPUT_DIR);
       await saveNote(filename, markdown, OUTPUT_DIR);
 
       if (existingPath) {
