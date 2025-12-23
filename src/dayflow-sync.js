@@ -395,7 +395,8 @@ function generateTimelineSection(cards) {
     }
 
     if (card.video_summary_url) {
-      section += `**Video summary**: [View](${card.video_summary_url})\n`;
+      const fileUrl = 'file://' + card.video_summary_url.replace(/ /g, '%20');
+      section += `**Video summary**: [View](${fileUrl})\n`;
     }
 
     return section;
